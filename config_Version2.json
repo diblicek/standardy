@@ -1,0 +1,124 @@
+{
+  "products": [
+    {
+      "name": "Podlahy – obytné místnosti",
+      "basic": { "name": "Laminát Egger 7 mm ACA – KPP", "price": 371.90, "url": "https://www.kpp.cz/" },
+      "comfort": { "name": "Vinyl Fatra Thermofix", "price": 570.25, "url": "https://www.fatrafloor.cz/" },
+      "premium": { "name": "Barlinek třívrstvá dřevěná", "price": 950.41, "url": "https://www.barlinek.com/" },
+      "qtyType": "bytu",
+      "unit": "m2"
+    },
+    {
+      "name": "Podlahy – chodba",
+      "basic": { "name": "Dlažba RAKO Siena – SIKO", "price": 371.90, "url": "https://www.siko.cz/rako-siena" },
+      "comfort": { "name": "RAKO Garda – SIKO", "price": 570.25, "url": "https://www.siko.cz/rako-garda" },
+      "premium": { "name": "Italgraniti Stone Mix – ProCeram", "price": 950.41, "url": "https://www.proceram.cz/italgraniti-stone-mix" },
+      "qtyType": "bytu",
+      "unit": "m2"
+    },
+    {
+      "name": "Podlahy – koupelna/WC",
+      "basic": { "name": "RAKO Color One", "price": 413.22, "url": "https://www.rako.cz/color-one" },
+      "comfort": { "name": "ProCeram Urban", "price": 661.16, "url": "https://www.proceram.cz/urban" },
+      "premium": { "name": "Velkoformát ProCeram Cotto 60x120", "price": 991.74, "url": "https://www.proceram.cz/cotto" },
+      "qtyType": "bytu",
+      "unit": "m2"
+    },
+    {
+      "name": "Obklady – koupelna",
+      "basic": { "name": "RAKO Color One", "price": 413.22, "url": "https://www.rako.cz/color-one" },
+      "comfort": { "name": "ProCeram Urban", "price": 702.48, "url": "https://www.proceram.cz/urban" },
+      "premium": { "name": "Velkoformát ProCeram Cotto 60x120", "price": 1157.02, "url": "https://www.proceram.cz/cotto" },
+      "qtyType": "bytu",
+      "unit": "m2"
+    },
+    {
+      "name": "WC + modul",
+      "basic": { "name": "Jika Lyra Plus WC set", "price": 4297.52, "url": "https://www.jika.cz/lyra-plus" },
+      "comfort": { "name": "Geberit iCon závěsné WC", "price": 7355.37, "url": "https://www.geberit.cz/icon" },
+      "premium": { "name": "Villeroy & Boch Subway 2.0", "price": 10661.16, "url": "https://www.villeroy-boch.cz/" },
+      "qtyType": "1_bj",
+      "unit": "kusů"
+    },
+    {
+      "name": "Umyvadlo",
+      "basic": { "name": "Jika Deep", "price": 1900.83, "url": "https://www.jika.cz/deep" },
+      "comfort": { "name": "Laufen Pro S", "price": 3719.01, "url": "https://www.laufen.cz/pro-s" },
+      "premium": { "name": "Catalano Green Lux", "price": 7024.79, "url": "https://www.catalano.it/green-lux" },
+      "qtyType": "1_bj",
+      "unit": "kusů"
+    },
+    {
+      "name": "Baterie umyvadlo",
+      "basic": { "name": "Hansgrohe Logis", "price": 1404.96, "url": "https://www.hansgrohe.cz/logis" },
+      "comfort": { "name": "Grohe BauEdge", "price": 2066.12, "url": "https://www.grohe.cz/bauedge" },
+      "premium": { "name": "Grohe Essence", "price": 4049.59, "url": "https://www.grohe.cz/essence" },
+      "qtyType": "1_bj",
+      "unit": "kusů"
+    },
+    {
+      "name": "Sprchový kout",
+      "basic": { "name": "Sprchový kout SIKO Modena", "price": 5702.48, "url": "https://www.siko.cz/modena" },
+      "comfort": { "name": "Walk-in kout SIKO + Grohe Smart", "price": 9917.36, "url": "https://www.siko.cz/walk-in" },
+      "premium": { "name": "Hansgrohe RainSelect set", "price": 15289.26, "url": "https://www.hansgrohe.cz/rainselect" },
+      "qtyType": "1_bj",
+      "unit": "kusů"
+    },
+    {
+      "name": "Videotelefon",
+      "basic": { "name": "Zvonek basic", "price": 661.16, "url": "" },
+      "comfort": { "name": "Hikvision basic video", "price": 3140.50, "url": "https://www.hikvision.com/cz-en/" },
+      "premium": { "name": "Hikvision video + app", "price": 5702.48, "url": "https://www.hikvision.com/cz-en/" },
+      "qtyType": "1_bj",
+      "unit": "kusů"
+    },
+    {
+      "name": "Vnitřní dveře zasouvací",
+      "basic": { "name": "Posuvné dveře do pouzdra Plné Hladké - Sněhobílá Greko", "price": 10200.00, "url": "" },
+      "comfort": { "name": "Posuvné dveře do pouzdra MISKANT (UV Lak)", "price": 13850.00, "url": "" },
+      "premium": { "name": "Posuvné dveře do pouzdra MISKANT (UV Lak)", "price": 13850.00, "url": "" },
+      "qtyType": "zasuvaci_csv",
+      "unit": "kusů"
+    },
+    {
+      "name": "Vnitřní dveře",
+      "basic": { "name": "Masonite CPL bílá", "price": 2892.56, "url": "" },
+      "comfort": { "name": "Solodoor CPL – dřevodekor", "price": 4297.52, "url": "" },
+      "premium": { "name": "Sapeli Elegant", "price": 7272.73, "url": "https://www.sapeli.cz/elegant" },
+      "qtyType": "dvere_csv",
+      "unit": "kusů"
+    },
+    {
+      "name": "Vstupní dveře",
+      "basic": { "name": "NEXT SD 101 RC2", "price": 8181.82, "url": "" },
+      "comfort": { "name": "BEDEX RC3 dýha", "price": 10330.58, "url": "" },
+      "premium": { "name": "Sapeli RC3 EI30", "price": 14876.03, "url": "" },
+      "qtyType": "vstupni_csv",
+      "unit": "kusů"
+    },
+    {
+      "name": "Elektro – zásuvky a vypínače",
+      "basic": { "name": "ABB Tango bílá", "price": 148.76, "url": "" },
+      "comfort": { "name": "ABB Levit", "price": 264.46, "url": "" },
+      "premium": { "name": "Gira E2", "price": 495.87, "url": "https://www.gira.com/en/en/e2" },
+      "qtyType": "zasuvky_csv",
+      "unit": "kusů"
+    },
+    {
+      "name": "Světelné vývody",
+      "basic": { "name": "", "price": 206.61, "url": "" },
+      "comfort": { "name": "", "price": 289.26, "url": "" },
+      "premium": { "name": "", "price": 371.90, "url": "" },
+      "qtyType": "54",
+      "unit": "kusů"
+    },
+    {
+      "name": "Rekuperace",
+      "basic": { "name": "-", "price": 4132.23, "url": "" },
+      "comfort": { "name": "Příprava na Zehnder ComfoAir", "price": 4132.23, "url": "https://www.zehnder.cz/comfoair" },
+      "premium": { "name": "Atrea DUPLEX Easy", "price": 31404.96, "url": "https://www.atrea.cz/produkty/duplex-easy" },
+      "qtyType": "rekuperace",
+      "unit": "kusů"
+    }
+  ]
+}

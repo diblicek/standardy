@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Výběr standardů vybavení bytu</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 1em; }
+    th, td { border: 1px solid #ccc; padding: 0.5em; text-align: left; }
+    th { background: #e9e9e9; }
+    .total { font-weight: bold; }
+    select { width: 100%; }
+    .product-link { color: #2464b6; text-decoration: underline; }
+    .unit { color: #666; font-size: 90%; }
+    #output { white-space: pre; background: #f1f1f1; padding: 1em; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <h1>Výběr standardů vybavení bytu</h1>
+  <p>
+    Vyberte nejprve bytovou jednotku. Počet dveří a zásuvek/vypínačů se načítá dle vašeho zadání pro každou BJ. Pro položky za m² se používá výměra bytu. 
+  </p>
+  <label for="bjSelect"><b>Vyberte bytovou jednotku:</b></label>
+  <select id="bjSelect"></select>
+  <span id="bjInfo"></span>
+  <form id="standardsForm">
+    <table>
+      <thead>
+        <tr>
+          <th>Kategorie</th>
+          <th>BASIC</th>
+          <th>COMFORT</th>
+          <th>PREMIUM</th>
+          <th>Vaše volba</th>
+          <th>Vybraný produkt</th>
+          <th>Cena za jednotku</th>
+          <th>Množství</th>
+          <th>Jednotka</th>
+          <th>Cena celkem</th>
+        </tr>
+      </thead>
+      <tbody id="standardsTable"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="9" class="total">Celková cena</td>
+          <td class="total" id="totalPrice">0 Kč</td>
+        </tr>
+      </tfoot>
+    </table>
+    <button type="button" onclick="saveSelection()">Uložit výběr</button>
+    <button type="button" onclick="exportPDF()">Exportovat PDF</button>
+  </form>
+  <h2>Souhrn vašeho výběru</h2>
+  <pre id="output"></pre>
+  <script>
+    // Data z vašeho CSV
+    const bjData = {
+"S1.05":{dvere:1, zasuvaci:2, vstupni:1, zasuvky:23},
+"S1.06":{dvere:1, zasuvaci:2, vstupni:1, zasuvky:23},
+"S1.07":{dvere:1, zasuvaci:2, vstupni:1, zasuvky:23},
+"S1.08":{dvere:2, zasuvaci:1, vstupni:1, zasuvky:23},
+"S1.09":{dvere:2, zasuvaci:2, vstupni:1, zasuvky:23},
+"S1.10":{dvere:1, zasuvaci:2, vstupni:1, zasuvky:23},
+"N1.01":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:29},
+"N1.02":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:29},
+"N1.03":{dvere:1, zasuvaci:2, vstupni:1, zasuvky:23},
+"N1.04":{dvere:2, zasuvaci:2, vstupni:1, zasuvky:23},
+"N1.05":{dvere:2, zasuvaci:2, vstupni:1, zasuvky:23},
+"N1.06":{dvere:1, zasuvaci:2, vstupni:1, zasuvky:23},
+"N1.07":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:23},
+"N1.08":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:23},
+"N2.01":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:23},
+"N2.02":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:23},
+"N2.03":{dvere:1, zasuvaci:2, vstupni:1, zasuvky:23},
+"N2.04":{dvere:2, zasuvaci:2, vstupni:1, zasuvky:29},
+"N2.05":{dvere:2, zasuvaci:2, vstupni:1, zasuvky:29},
+"N2.06":{dvere:1, zasuvaci:2, vstupni:1, zasuvky:23},
+"N2.07":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:23},
+"N2.08":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:23},
+"N3.01":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:23},
+"N3.02":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:23},
+"N3.03":{dvere:1, zasuvaci:2, vstupni:1, zasuvky:23},
+"N3.04":{dvere:2, zasuvaci:2, vstupni:1, zasuvky:29},
+"N3.05":{dvere:2, zasuvaci:2, vstupni:1, zasuvky:29},
+"N3.06":{dvere:1, zasuvaci:2, vstupni:1, zasuvky:23},
+"N3.07":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:23},
+"N3.08":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:23},
+"N4.01":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:23},
+"N4.02":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:23},
+"N4.03":{dvere:1, zasuvaci:2, vstupni:1, zasuvky:23},
+"N4.04":{dvere:1, zasuvaci:3, vstupni:1, zasuvky:29},
+"N4.05":{dvere:1, zasuvaci:3, vstupni:1, zasuvky:29},
+"N4.06":{dvere:1, zasuvaci:2, vstupni:1, zasuvky:23},
+"N4.07":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:23},
+"N4.08":{dvere:0, zasuvaci:3, vstupni:1, zasuvky:23}
+};
+
+    // Seznam BJ a jejich výměr
+    const units = [
+      { id: "S1.05", area: 25.97, type: "2kk" }, { id: "S1.06", area: 29.89, type: "2kk" },
+      { id: "S1.07", area: 29.91, type: "2kk" }, { id: "S1.08", area: 34.77, type: "2kk" },
+      { id: "S1.09", area: 28.89, type: "2kk" }, { id: "S1.10", area: 29.02, type: "2kk" },
+      { id: "N1.01", area: 28.17, type: "2kk" }, { id: "N1.02", area: 28.16, type: "2kk" },
+      { id: "N1.03", area: 29.36, type: "2kk" }, { id: "N1.04", area: 45.35, type: "3kk" },
+      { id: "N1.05", area: 44.64, type: "3kk" }, { id: "N1.06", area: 32, type: "2kk" },
+      { id: "N1.07", area: 28.16, type: "2kk" }, { id: "N1.08", area: 28.16, type: "2kk" },
+      { id: "N2.01", area: 28.17, type: "2kk" }, { id: "N2.02", area: 28.16, type: "2kk" },
+      { id: "N2.03", area: 29.36, type: "2kk" }, { id: "N2.04", area: 45.35, type: "3kk" },
+      { id: "N2.05", area: 44.64, type: "3kk" }, { id: "N2.06", area: 32, type: "2kk" },
+      { id: "N2.07", area: 28.16, type: "2kk" }, { id: "N2.08", area: 28.16, type: "2kk" },
+      { id: "N3.01", area: 28.17, type: "2kk" }, { id: "N3.02", area: 28.16, type: "2kk" },
+      { id: "N3.03", area: 29.36, type: "2kk" }, { id: "N3.04", area: 45.35, type: "3kk" },
+      { id: "N3.05", area: 44.64, type: "3kk" }, { id: "N3.06", area: 32, type: "2kk" },
+      { id: "N3.07", area: 28.16, type: "2kk" }, { id: "N3.08", area: 28.16, type: "2kk" },
+      { id: "N4.01", area: 28.17, type: "2kk" }, { id: "N4.02", area: 28.16, type: "2kk" },
+      { id: "N4.03", area: 30.36, type: "2kk" }, { id: "N4.04", area: 44.54, type: "3kk" },
+      { id: "N4.05", area: 44.64, type: "3kk" }, { id: "N4.06", area: 31.93, type: "2kk" },
+      { id: "N4.07", area: 28.16, type: "2kk" }, { id: "N4.08", area: 28.18, type: "2kk" }
+    ];
+
+    // Položky a produkty (Žaluzie odstraněny, rekuperace qty dynamicky)
+    const items = [
+      {
+        name: "Podlahy – obytné místnosti",
+        products: {
+          basic: { name: "Laminát Egger 7 mm ACA – KPP", url: "https://www.kpp.cz/" },
+          comfort: { name: "Vinyl Fatra Thermofix", url: "https://www.fatrafloor.cz/" },
+          premium: { name: "Barlinek třívrstvá dřevěná", url: "https://www.barlinek.com/" }
+        },
+        prices: { basic: 371.90, comfort: 570.25, premium: 950.41 },
+        qty: "bytu",
+        unit: "m2"
+      },
+      {
+        name: "Podlahy – chodba",
+        products: {
+          basic: { name: "Dlažba RAKO Siena – SIKO", url: "https://www.siko.cz/rako-siena" },
+          comfort: { name: "RAKO Garda – SIKO", url: "https://www.siko.cz/rako-garda" },
+          premium: { name: "Italgraniti Stone Mix – ProCeram", url: "https://www.proceram.cz/italgraniti-stone-mix" }
+        },
+        prices: { basic: 371.90, comfort: 570.25, premium: 950.41 },
+        qty: "bytu",
+        unit: "m2"
+      },
+      {
+        name: "Podlahy – koupelna/WC",
+        products: {
+          basic: { name: "RAKO Color One", url: "https://www.rako.cz/color-one" },
+          comfort: { name: "ProCeram Urban", url: "https://www.proceram.cz/urban" },
+          premium: { name: "Velkoformát ProCeram Cotto 60x120", url: "https://www.proceram.cz/cotto" }
+        },
+        prices: { basic: 413.22, comfort: 661.16, premium: 991.74 },
+        qty: "bytu",
+        unit: "m2"
+      },
+      {
+        name: "Obklady – koupelna",
+        products: {
+          basic: { name: "RAKO Color One", url: "https://www.rako.cz/color-one" },
+          comfort: { name: "ProCeram Urban", url: "https://www.proceram.cz/urban" },
+          premium: { name: "Velkoformát ProCeram Cotto 60x120", url: "https://www.proceram.cz/cotto" }
+        },
+        prices: { basic: 413.22, comfort: 702.48, premium: 1157.02 },
+        qty: "bytu",
+        unit: "m2"
+      },
+      {
+        name: "WC + modul",
+        products: {
+          basic: { name: "Jika Lyra Plus WC set", url: "https://www.jika.cz/lyra-plus" },
+          comfort: { name: "Geberit iCon závěsné WC", url: "https://www.geberit.cz/icon" },
+          premium: { name: "Villeroy & Boch Subway 2.0", url: "https://www.villeroy-boch.cz/" }
+        },
+        prices: { basic: 4297.52, comfort: 7355.37, premium: 10661.16 },
+        qty: "1_bj",
+        unit: "kusů"
+      },
+      {
+        name: "Umyvadlo",
+        products: {
+          basic: { name: "Jika Deep", url: "https://www.jika.cz/deep" },
+          comfort: { name: "Laufen Pro S", url: "https://www.laufen.cz/pro-s" },
+          premium: { name: "Catalano Green Lux", url: "https://www.catalano.it/green-lux" }
+        },
+        prices: { basic: 1900.83, comfort: 3719.01, premium: 7024.79 },
+        qty: "1_bj",
+        unit: "kusů"
+      },
+      {
+        name: "Baterie umyvadlo",
+        products: {
+          basic: { name: "Hansgrohe Logis", url: "https://www.hansgrohe.cz/logis" },
+          comfort: { name: "Grohe BauEdge", url: "https://www.grohe.cz/bauedge" },
+          premium: { name: "Grohe Essence", url: "https://www.grohe.cz/essence" }
+        },
+        prices: { basic: 1404.96, comfort: 2066.12, premium: 4049.59 },
+        qty: "1_bj",
+        unit: "kusů"
+      },
+      {
+        name: "Sprchový kout",
+        products: {
+          basic: { name: "Sprchový kout SIKO Modena", url: "https://www.siko.cz/modena" },
+          comfort: { name: "Walk-in kout SIKO + Grohe Smart", url: "https://www.siko.cz/walk-in" },
+          premium: { name: "Hansgrohe RainSelect set", url: "https://www.hansgrohe.cz/rainselect" }
+        },
+        prices: { basic: 5702.48, comfort: 9917.36, premium: 15289.26 },
+        qty: "1_bj",
+        unit: "kusů"
+      },
+      {
+        name: "Videotelefon",
+        products: {
+          basic: { name: "Zvonek basic", url: "" },
+          comfort: { name: "Hikvision basic video", url: "https://www.hikvision.com/cz-en/" },
+          premium: { name: "Hikvision video + app", url: "https://www.hikvision.com/cz-en/" }
+        },
+        prices: { basic: 661.16, comfort: 3140.5, premium: 5702.48 },
+        qty: "1_bj",
+        unit: "kusů"
+      },
+      {
+        name: "Vnitřní dveře zasouvací",
+        products: {
+          basic: { name: "Posuvné dveře do pouzdra Plné Hladké - Sněhobílá Greko", url: "" },
+          comfort: { name: "Posuvné dveře do pouzdra MISKANT (UV Lak)", url: "" },
+          premium: { name: "Posuvné dveře do pouzdra MISKANT (UV Lak)", url: "" }
+        },
+        prices: { basic: 10200.00, comfort: 13850.00, premium: 13850.00 },
+        qty: "zasuvaci_csv",
+        unit: "kusů"
+      },
+      {
+        name: "Vnitřní dveře",
+        products: {
+          basic: { name: "Masonite CPL bílá", url: "" },
+          comfort: { name: "Solodoor CPL – dřevodekor", url: "" },
+          premium: { name: "Sapeli Elegant", url: "https://www.sapeli.cz/elegant" }
+        },
+        prices: { basic: 2892.56, comfort: 4297.52, premium: 7272.73 },
+        qty: "dvere_csv",
+        unit: "kusů"
+      },
+      {
+        name: "Vstupní dveře",
+        products: {
+          basic: { name: "NEXT SD 101 RC2", url: "" },
+          comfort: { name: "BEDEX RC3 dýha", url: "" },
+          premium: { name: "Sapeli RC3 EI30", url: "" }
+        },
+        prices: { basic: 8181.82, comfort: 10330.58, premium: 14876.03 },
+        qty: "vstupni_csv",
+        unit: "kusů"
+      },
+      {
+        name: "Elektro – zásuvky a vypínače",
+        products: {
+          basic: { name: "ABB Tango bílá", url: "" },
+          comfort: { name: "ABB Levit", url: "" },
+          premium: { name: "Gira E2", url: "https://www.gira.com/en/en/e2" }
+        },
+        prices: { basic: 148.76, comfort: 264.46, premium: 495.87 },
+        qty: "zasuvky_csv",
+        unit: "kusů"
+      },
+      {
+        name: "Světelné vývody",
+        products: {
+          basic: { name: "", url: "" },
+          comfort: { name: "", url: "" },
+          premium: { name: "", url: "" }
+        },
+        prices: { basic: 206.61, comfort: 289.26, premium: 371.90 },
+        qty: 54,
+        unit: "kusů"
+      },
+      {
+        name: "Rekuperace",
+        products: {
+          basic: { name: "-", url: "" },
+          comfort: { name: "Příprava na Zehnder ComfoAir", url: "https://www.zehnder.cz/comfoair" },
+          premium: { name: "Atrea DUPLEX Easy", url: "https://www.atrea.cz/produkty/duplex-easy" }
+        },
+        prices: { basic: 4132.23, comfort: 4132.23, premium: 31404.96 },
+        qty: "rekuperace",
+        unit: "kusů"
+      }
+    ];
+
+    let selectedUnitIdx = 0;
+    let selections = [];
+
+    function renderBJSelect() {
+      const bjSel = document.getElementById('bjSelect');
+      bjSel.innerHTML = "";
+      units.forEach((u, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `${u.id} (${u.area} m², ${u.type})`;
+        bjSel.appendChild(opt);
+      });
+      bjSel.addEventListener('change', updateAllPrices);
+      updateBJInfo();
+    }
+
+    function updateBJInfo() {
+      const bjInfo = document.getElementById('bjInfo');
+      const u = units[selectedUnitIdx];
+      bjInfo.textContent = ` | Výměra: ${u.area} m² | Dispozice: ${u.type}`;
+    }
+
+    function renderTable() {
+      const table = document.getElementById('standardsTable');
+      table.innerHTML = '';
+      selections = [];
+      items.forEach((item, idx) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.products.basic ? item.products.basic.name : ""}</td>
+          <td>${item.products.comfort ? item.products.comfort.name : ""}</td>
+          <td>${item.products.premium ? item.products.premium.name : ""}</td>
+          <td>
+            <select data-idx="${idx}" onchange="updatePrice()">
+              <option value="basic">BASIC</option>
+              <option value="comfort">COMFORT</option>
+              <option value="premium">PREMIUM</option>
+            </select>
+          </td>
+          <td id="product-${idx}">${
+            item.products.basic.url
+              ? `<a href="${item.products.basic.url}" class="product-link" target="_blank">${item.products.basic.name}</a>`
+              : item.products.basic.name
+          }</td>
+          <td id="price-unit-${idx}">${item.prices.basic.toLocaleString('cs-CZ')} Kč <span class='unit'>/ ${item.unit}</span></td>
+          <td id="quantity-${idx}"></td>
+          <td>${item.unit}</td>
+          <td class="item-price" id="item-price-${idx}"></td>
+        `;
+        table.appendChild(row);
+        selections.push('basic');
+      });
+      updatePrice();
+    }
+
+    function updateAllPrices() {
+      selectedUnitIdx = +document.getElementById('bjSelect').value;
+      updateBJInfo();
+      updatePrice();
+    }
+
+    function rekuperaceQty(unitType) {
+      // 2kk => 1, 3kk => 2
+      return unitType === "3kk" ? 2 : 1;
+    }
+
+    function updatePrice() {
+      let total = 0;
+      const u = units[selectedUnitIdx];
+      const bj = bjData[u.id];
+
+      document.querySelectorAll('select[data-idx]').forEach(sel => {
+        const idx = +sel.getAttribute('data-idx');
+        const val = sel.value;
+        selections[idx] = val;
+        const prod = items[idx].products[val];
+        document.getElementById('product-' + idx).innerHTML = prod.url
+          ? `<a href="${prod.url}" class="product-link" target="_blank">${prod.name}</a>`
+          : prod.name;
+        document.getElementById('price-unit-' + idx).innerHTML = items[idx].prices[val].toLocaleString('cs-CZ') + " Kč <span class='unit'>/ " + items[idx].unit + "</span>";
+
+        // Výpočet množství
+        let q = 1;
+        if (items[idx].qty === "bytu" && items[idx].unit === "m2") {
+          q = u.area;
+        } else if (items[idx].qty === "dvere_csv") {
+          q = bj.dvere;
+        } else if (items[idx].qty === "zasuvaci_csv") {
+          q = bj.zasuvaci;
+        } else if (items[idx].qty === "vstupni_csv") {
+          q = bj.vstupni;
+        } else if (items[idx].qty === "zasuvky_csv") {
+          q = bj.zasuvky;
+        } else if (items[idx].qty === "1_bj") {
+          q = 1;
+        } else if (items[idx].qty === "rekuperace") {
+          q = rekuperaceQty(u.type);
+        } else if (!isNaN(items[idx].qty)) {
+          q = items[idx].qty;
+        }
+        document.getElementById('quantity-' + idx).textContent = typeof q === "number" ? q : (q || "");
+        let price = items[idx].prices[val] * q;
+        document.getElementById('item-price-' + idx).innerText = price.toLocaleString('cs-CZ') + " Kč";
+        total += price;
+      });
+      document.getElementById('totalPrice').innerText = total.toLocaleString('cs-CZ') + " Kč";
+    }
+
+    function saveSelection() {
+      const u = units[selectedUnitIdx];
+      const bj = bjData[u.id];
+      let text = `Vybraná bytová jednotka: ${u.id} (${u.area} m², ${u.type})\nSouhrn vašeho výběru:\n`;
+      items.forEach((item, idx) => {
+        const val = selections[idx];
+        const prod = item.products[val];
+        let q = 1;
+        if (item.qty === "bytu" && item.unit === "m2") {
+          q = u.area;
+        } else if (item.qty === "dvere_csv") {
+          q = bj.dvere;
+        } else if (item.qty === "zasuvaci_csv") {
+          q = bj.zasuvaci;
+        } else if (item.qty === "vstupni_csv") {
+          q = bj.vstupni;
+        } else if (item.qty === "zasuvky_csv") {
+          q = bj.zasuvky;
+        } else if (item.qty === "1_bj") {
+          q = 1;
+        } else if (item.qty === "rekuperace") {
+          q = rekuperaceQty(u.type);
+        } else if (!isNaN(item.qty)) {
+          q = item.qty;
+        }
+        let line = `${item.name}: ${val.toUpperCase()} – ${prod.name} (${item.prices[val].toLocaleString('cs-CZ')} Kč / ${item.unit}), množství: ${q} ${item.unit}, celkem: ${(item.prices[val] * q).toLocaleString('cs-CZ')} Kč`;
+        text += line + "\n";
+      });
+      text += `Celková cena: ${document.getElementById('totalPrice').innerText}`;
+      document.getElementById('output').innerText = text;
+    }
+
+    // Funkční export do PDF
+    function exportPDF() {
+      if (!(window.jspdf && window.jspdf.jsPDF)) {
+        alert("Chyba: knihovna jsPDF nebyla načtena!");
+        return;
+      }
+      const doc = new window.jspdf.jsPDF();
+      const summary = document.getElementById('output').innerText || "Souhrn není k dispozici.";
+      const lines = summary.split('\n');
+      let y = 10;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
+
+      lines.forEach(line => {
+        doc.text(line, 10, y);
+        y += 8;
+        if (y > 280) {
+          doc.addPage();
+          y = 10;
+        }
+      });
+
+      doc.save('souhrn_vybaveni_bytu.pdf');
+    }
+
+    renderBJSelect();
+    renderTable();
+  </script>
+</body>
+</html>
